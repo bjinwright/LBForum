@@ -4,7 +4,7 @@ from base64 import b64encode, b64decode
 import pickle
 
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User,Group
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Sum
@@ -38,6 +38,7 @@ class Category(models.Model):
 class Forum(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=110)
+    group = models.ForeignKey(Group,null=True,blank=True)
     description = models.TextField(default='')
     ordering = models.PositiveIntegerField(default=1)
     category = models.ForeignKey(Category)

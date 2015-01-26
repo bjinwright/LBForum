@@ -8,46 +8,58 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
-#from django.contrib import messages
+from django.views.generic import TemplateView,ListView,DetailView
+
 
 from forms import EditPostForm, NewPostForm, ForumForm
 from models import Topic, Forum, Post
 import settings as lbf_settings
+from pydoc_data.topics import topics
 
 
-def index(request, template_name="lbforum/index.html"):
-    ctx = {}
-    if lbf_settings.LAST_TOPIC_NO_INDEX:
-        ctx['topics'] = Topic.objects.all().order_by('-last_reply_on')[:20]
-    return render(request, template_name, ctx)
 
+class IndexView(ListView):
+    template_name = 'lbforum/index.html'
+    paginate_by = 20
+    context_object_name = 'topics'
+    def get_queryset(self):
+        return Topic.objects.all().order_by('-last_reply_on')
+    
+index = IndexView.as_view()
 
-def recent(request, template_name="lbforum/recent.html"):
-    ctx = {}
-    ctx['topics'] = Topic.objects.all().order_by('-last_reply_on')
-    ctx['topics'] = ctx['topics'].select_related()
+class RecentView(ListView):
+    template_name = 'lbforum/recent.html'
+    
+    def get_queryset(self):
+        topics = Topic.objects.all().order_by('-last_reply_on')
+        return topics.select_related()
+    
+recent = RecentView.as_view()
 
-    return render(request, template_name, ctx)
-
-
-def forum(request, forum_slug, topic_type='', topic_type2='',
-        template_name="lbforum/forum.html"):
-    forum = get_object_or_404(Forum, slug=forum_slug)
-    topics = forum.topic_set.all()
-    if topic_type and topic_type != 'good':
-        topic_type2 = topic_type
-        topic_type = ''
-    if topic_type == 'good':
-        topics = topics.filter(level__gt=30)
-        #topic_type = _("Distillate District")
-    if topic_type2:
-        topics = topics.filter(topic_type__slug=topic_type2)
-    order_by = request.GET.get('order_by', '-last_reply_on')
-    topics = topics.order_by('-sticky', order_by).select_related()
-    form = ForumForm(request.GET)
-    ext_ctx = {'form': form, 'forum': forum, 'topics': topics,
-            'topic_type': topic_type, 'topic_type2': topic_type2}
-    return render(request, template_name, ext_ctx)
+class ForumView(DetailView):
+    template_name = 'lbforum/forum.html'
+    model = Forum
+    context_object_name = 'forum'
+    def get_context_data(self, **kwargs):
+        context = super(ForumView,self).get_context_data(**kwargs)
+        topics = self.object.topic_set.all()
+        topic_type = self.kwargs.get('topic_type')
+        topic_type2 = self.kwargs.get('topic_type2')
+        if topic_type and topic_type != 'good':
+            topic_type2 = topic_type
+            topic_type = ''
+        if topic_type == 'good':
+            topics = topics.filter(level__gt=30)
+        if topic_type2:
+            topics = topics.filter(topic_type__slug=topic_type2)
+        order_by = self.request.GET.get('order_by','-last_reply_on')
+        context['topics'] = topics.order_by('-sticky', order_by).select_related()
+        context['form'] = ForumForm(self.request.GET)
+        context['topic_type'] = topic_type
+        context['topic_type2'] = topic_type2    
+        return context
+    
+forum = ForumView.as_view()
 
 
 def topic(request, topic_id, template_name="lbforum/topic.html"):
