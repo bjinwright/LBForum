@@ -16,8 +16,8 @@ from models import Topic, Forum, Post
 import settings as lbf_settings
 from pydoc_data.topics import topics
 from django.core.context_processors import request
-from django.views.generic.edit import FormView, CreateView
-from braces.views._access import LoginRequiredMixin
+from django.views.generic.edit import FormView, CreateView, DeleteView
+from braces.views._access import LoginRequiredMixin, StaffuserRequiredMixin
 from django.core.cache import cache
 
 
@@ -112,12 +112,8 @@ class NewPostView(LoginRequiredMixin,CreateView):
     model = Post
     form_class = NewPostForm
     template_name = 'lbforum/post.html'
+    
     def get_forum(self):
-        try:
-            return self._forum
-        except AttributeError:
-            pass
-
         forum_id = self.kwargs.get('forum_id')
         topic_id = self.kwargs.get('topic_id')
         
@@ -127,6 +123,14 @@ class NewPostView(LoginRequiredMixin,CreateView):
             forum = get_cached_obj(topic_id, 'topic', Topic).forum
         return forum
     
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid() and request.POST.get('submit',None):
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+        
     def get_topic(self):
         try:
             return self._topic
@@ -151,12 +155,21 @@ class NewPostView(LoginRequiredMixin,CreateView):
         if topic:
             first_post = topic.posts.order_by('created_on').select_related()[0]
         else:
-            first_post = 
+            first_post = None
         context.update(
             {'forum':self.get_forum(),'topic':self.get_topic(),
-             'first_post':}
+             'first_post':first_post}
                        )
         return context
+    
+    def get_initial(self):
+        initial = super(NewPostView,self).get_initial()
+        qid = self.request.GET.get('qid')
+        if qid:
+            qpost = get_cached_obj(qid, 'post', Post)
+            initial['message'] = "[quote={0}]{1}[/quote]".format(
+                qpost.posted_by.username, qpost.message)
+        return initial
     
     def get_success_url(self):
         topic = self.get_topic()
@@ -246,7 +259,19 @@ def edit_post(request, post_id, form_class=EditPostForm,
     ext_ctx['session_key'] = request.session.session_key
     return render(request, template_name, ext_ctx)
 
+class UserTopicsView(ListView):
+    context_object_name = 'topics'
 
+    def get_queryset(self):
+        view_user = get_cached_obj(self.kwargs.get('user_id'), 'user', User)
+        topics = view_user.topic_set.order_by('-created_on').select_related()
+        return topics
+    
+    def get_context_data(self, **kwargs):
+        context = super(UserTopicsView,self).get_context_data(**kwargs)
+        context['view_user'] = get_cached_obj(self.kwargs.get('user_id'), 'user', User)
+        return context
+    
 @login_required
 def user_topics(request, user_id,
                 template_name='lbforum/account/user_topics.html'):
@@ -272,31 +297,33 @@ def user_posts(request, user_id,
     }
     return render(request, template_name, context)
 
+class DeleteTopicView(StaffuserRequiredMixin,DeleteView):
+    model = Topic
+    
+    def delete(self, request, *args, **kwargs):
+        response = super(DeleteTopicView,self).delete(request,*args,**kwargs)
+        self.object.forum.update_state_info()
+        return response
+    
+    def get_success_url(self):
+        return reverse("lbforum_forum",args=[self.object.forum.slug])
 
+delete_topic = DeleteTopicView.as_view()
 
-@login_required
-def delete_topic(request, topic_id):
-    if not request.user.is_staff:
-        #messages.error(_('no right'))
-        return HttpResponse(ugettext('no right'))
-    topic = get_object_or_404(Topic, id=topic_id)
-    forum = topic.forum
-    topic.delete()
-    forum.update_state_info()
-    return HttpResponseRedirect(reverse("lbforum_forum", args=[forum.slug]))
+class DeletePostView(StaffuserRequiredMixin,DeleteView):
+    model = Post
+    
+    def delete(self, request, *args, **kwargs):
+        response = super(DeletePostView,self).delete(request,*args,**kwargs)
+        topic = self.object.topic
+        topic.update_state_info()
+        topic.forum.update_state_info()
+        return response
+    
+    def get_success_url(self):
+        return reverse("lbforum_topic",args=[self.object.topic.id])
 
-
-@login_required
-def delete_post(request, post_id):
-    if not request.user.is_staff:
-        return HttpResponse(ugettext('no right'))
-    post = get_object_or_404(Post, id=post_id)
-    topic = post.topic
-    post.delete()
-    topic.update_state_info()
-    topic.forum.update_state_info()
-    #return HttpResponseRedirect(request.path)
-    return HttpResponseRedirect(reverse("lbforum_topic", args=[topic.id]))
+delete_post = DeletePostView.as_view()
 
 
 @login_required
