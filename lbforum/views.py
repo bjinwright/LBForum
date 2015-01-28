@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import TemplateView,ListView,DetailView
+from django.views.generic import ListView,DetailView
 
 
 from forms import EditPostForm, NewPostForm, ForumForm
@@ -16,7 +16,7 @@ from models import Topic, Forum, Post
 import settings as lbf_settings
 from pydoc_data.topics import topics
 from django.core.context_processors import request
-from django.views.generic.edit import FormView, CreateView, DeleteView
+from django.views.generic.edit import CreateView, DeleteView
 from braces.views._access import LoginRequiredMixin, StaffuserRequiredMixin
 from django.core.cache import cache
 
@@ -261,7 +261,8 @@ def edit_post(request, post_id, form_class=EditPostForm,
 
 class UserTopicsView(ListView):
     context_object_name = 'topics'
-
+    template_name = 'lbforum/account/user_topics.html'
+    
     def get_queryset(self):
         view_user = get_cached_obj(self.kwargs.get('user_id'), 'user', User)
         topics = view_user.topic_set.order_by('-created_on').select_related()
@@ -272,30 +273,24 @@ class UserTopicsView(ListView):
         context['view_user'] = get_cached_obj(self.kwargs.get('user_id'), 'user', User)
         return context
     
-@login_required
-def user_topics(request, user_id,
-                template_name='lbforum/account/user_topics.html'):
-    view_user = User.objects.get(pk=user_id)
-    topics = view_user.topic_set.order_by('-created_on').select_related()
-    context = {
-        'topics': topics,
-        'view_user': view_user
-    }
+user_topics = UserTopicsView.as_view()
 
-    return render(request, template_name, context)
-
-
-
-@login_required
-def user_posts(request, user_id,
-               template_name='lbforum/account/user_posts.html'):
-    view_user = User.objects.get(pk=user_id)
-    posts = view_user.post_set.order_by('-created_on').select_related()
-    context = {
-        'posts': posts,
-        'view_user': view_user
-    }
-    return render(request, template_name, context)
+class UserPostsView(ListView):
+    context_object_name = 'posts'
+    template_name = 'lbforum/account/user_posts.html'
+    
+    def get_queryset(self):
+        view_user = get_cached_obj(self.kwargs.get('user_id'), 'user', User)
+        posts = view_user.post_set.order_by('-created_on').select_related()
+        return posts
+    
+    def get_context_data(self, **kwargs):
+        context = super(UserPostsView,self).get_context_data(**kwargs)
+        context['view_user'] = get_cached_obj(self.kwargs.get('user_id'),
+                                              'user', User)
+        return context
+    
+user_posts = UserPostsView.as_view()
 
 class DeleteTopicView(StaffuserRequiredMixin,DeleteView):
     model = Topic
