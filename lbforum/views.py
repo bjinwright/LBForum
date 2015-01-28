@@ -15,6 +15,10 @@ from forms import EditPostForm, NewPostForm, ForumForm
 from models import Topic, Forum, Post
 import settings as lbf_settings
 from pydoc_data.topics import topics
+from django.core.context_processors import request
+from django.views.generic.edit import FormView, CreateView
+from braces.views._access import LoginRequiredMixin
+from django.core.cache import cache
 
 
 
@@ -61,19 +65,22 @@ class ForumView(DetailView):
     
 forum = ForumView.as_view()
 
-
-def topic(request, topic_id, template_name="lbforum/topic.html"):
-    topic = get_object_or_404(Topic, id=topic_id)
-    topic.num_views += 1
-    topic.save()
-    posts = topic.posts
-    if lbf_settings.STICKY_TOPIC_POST:  # sticky topic post
-        posts = posts.filter(topic_post=False)
-    posts = posts.order_by('created_on').select_related()
-    ext_ctx = {'topic': topic, 'posts': posts}
-    ext_ctx['has_replied'] = topic.has_replied(request.user)
-    return render(request, template_name, ext_ctx)
-
+class TopicView(DetailView):
+    model = Topic
+    context_object_name = 'topic'
+    template_name = 'lbforum/topic.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super(TopicView,self).get_context_data(**kwargs)
+        posts = self.objects.posts
+        if lbf_settings.STICKY_TOPIC_POST:
+            posts = posts.filter(topic_post=False)
+        posts = posts.order_by('created_on').select_related()
+        context['posts'] = posts
+        context['has_replied'] = self.object.has_replied(self.request.user)
+        return context
+    
+topic = TopicView.as_view()
 
 def post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -84,7 +91,81 @@ def post(request, post_id):
 def markitup_preview(request, template_name="lbforum/markitup_preview.html"):
     return render(request, template_name, {'message': request.POST['data']})
 
+def get_cached_obj(pk,model_name,model_class,cache_timeout=500):
+    '''
+    Using a primary key retrive object from the database or from the cache.
+    :param pk: Primary key
+    :param model_name: Name of the model to use for the cache key
+    :param model_class: The Django model class to query if the object is 
+    not in the cache
+    '''
+    if pk == None:
+        return None
+    ck = '{0}-forum'.format(pk)
+    obj = cache.get(ck)
+    if not obj:
+        obj = get_object_or_404(model_class,pk=pk)
+        cache.set(ck,obj,cache_timeout)
+    return obj
 
+class NewPostView(LoginRequiredMixin,CreateView):
+    model = Post
+    form_class = NewPostForm
+    template_name = 'lbforum/post.html'
+    def get_forum(self):
+        try:
+            return self._forum
+        except AttributeError:
+            pass
+
+        forum_id = self.kwargs.get('forum_id')
+        topic_id = self.kwargs.get('topic_id')
+        
+        if forum_id:
+            forum = get_cached_obj(forum_id, 'forum', Forum)
+        if topic_id:
+            forum = get_cached_obj(topic_id, 'topic', Topic).forum
+        return forum
+    
+    def get_topic(self):
+        try:
+            return self._topic
+        except AttributeError:
+            pass
+        self._topic = get_cached_obj(self.kwargs.get('topic_id'),'topic',Topic)
+        return self._topic
+    
+        
+    def get_form_kwargs(self):
+        kwargs = super(NewPostView,self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['forum'] = self.get_forum()
+        kwargs['topic'] = get_cached_obj(self.kwargs.get('topic_id'),
+                                         'topic', Topic)
+        kwargs['ip'] = self.request.META.get('REMOTE_ADDR')
+        return kwargs
+    
+    def get_context_data(self, **kwargs):
+        context = super(NewPostView,self).get_context_data(**kwargs)
+        topic = self.get_topic()
+        if topic:
+            first_post = topic.posts.order_by('created_on').select_related()[0]
+        else:
+            first_post = 
+        context.update(
+            {'forum':self.get_forum(),'topic':self.get_topic(),
+             'first_post':}
+                       )
+        return context
+    
+    def get_success_url(self):
+        topic = self.get_topic()
+        if topic:
+            return self.object.get_absolute_url_ext()
+        return reverse('lbforum_forum',args=[forum.slug])
+    
+        
+        
 @login_required
 def new_post(request, forum_id=None, topic_id=None, form_class=NewPostForm,
         template_name='lbforum/post.html'):
