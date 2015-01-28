@@ -17,7 +17,8 @@ import settings as lbf_settings
 from pydoc_data.topics import topics
 from django.core.context_processors import request
 from django.views.generic.edit import CreateView, DeleteView
-from braces.views._access import LoginRequiredMixin, StaffuserRequiredMixin
+from braces.views._access import LoginRequiredMixin, StaffuserRequiredMixin,\
+    GroupRequiredMixin
 from django.core.cache import cache
 
 
@@ -40,10 +41,29 @@ class RecentView(ListView):
     
 recent = RecentView.as_view()
 
-class ForumView(DetailView):
+class ForumGroupRequiredMixin(GroupRequiredMixin):
+    
+    def get_forum(self):
+        pass
+    
+    def check_membership(self, groups):
+        if groups == None:
+            return True
+        return super(ForumGroupRequiredMixin,self).check_membership(groups)
+    
+    def get_group_required(self):
+        return self.get_forum().group
+        
+        
+    
+class ForumView(ForumGroupRequiredMixin,DetailView):
     template_name = 'lbforum/forum.html'
     model = Forum
     context_object_name = 'forum'
+    
+    def get_forum(self):
+        return self.object
+    
     def get_context_data(self, **kwargs):
         context = super(ForumView,self).get_context_data(**kwargs)
         topics = self.object.topic_set.all()
@@ -65,10 +85,13 @@ class ForumView(DetailView):
     
 forum = ForumView.as_view()
 
-class TopicView(DetailView):
+class TopicView(ForumGroupRequiredMixin,DetailView):
     model = Topic
     context_object_name = 'topic'
     template_name = 'lbforum/topic.html'
+    
+    def get_forum(self):
+        return self.object.forum
     
     def get_context_data(self, **kwargs):
         context = super(TopicView,self).get_context_data(**kwargs)
@@ -108,7 +131,7 @@ def get_cached_obj(pk,model_name,model_class,cache_timeout=500):
         cache.set(ck,obj,cache_timeout)
     return obj
 
-class NewPostView(LoginRequiredMixin,CreateView):
+class NewPostView(ForumGroupRequiredMixin,LoginRequiredMixin,CreateView):
     model = Post
     form_class = NewPostForm
     template_name = 'lbforum/post.html'
@@ -308,6 +331,9 @@ delete_topic = DeleteTopicView.as_view()
 class DeletePostView(StaffuserRequiredMixin,DeleteView):
     model = Post
     
+    def get(self, *args, **kwargs):
+        return self.delete(*args, **kwargs)
+    
     def delete(self, request, *args, **kwargs):
         response = super(DeletePostView,self).delete(request,*args,**kwargs)
         topic = self.object.topic
@@ -319,7 +345,6 @@ class DeletePostView(StaffuserRequiredMixin,DeleteView):
         return reverse("lbforum_topic",args=[self.object.topic.id])
 
 delete_post = DeletePostView.as_view()
-
 
 @login_required
 def update_topic_attr_as_not(request, topic_id, attr):
@@ -340,7 +365,3 @@ def update_topic_attr_as_not(request, topic_id, attr):
                                             args=[topic.forum.slug]))
     else:
         return HttpResponseRedirect(reverse("lbforum_topic", args=[topic.id]))
-
-#Feed...
-#Add Post
-#Add Topic
