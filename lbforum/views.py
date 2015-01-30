@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
+
+from braces.views._access import LoginRequiredMixin, StaffuserRequiredMixin,\
+    GroupRequiredMixin
+
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -8,18 +12,12 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView,DetailView
-
+from django.views.generic import ListView,DetailView,CreateView, DeleteView
+from django.core.cache import cache
 
 from forms import EditPostForm, NewPostForm, ForumForm
 from models import Topic, Forum, Post
 import settings as lbf_settings
-from pydoc_data.topics import topics
-from django.core.context_processors import request
-from django.views.generic.edit import CreateView, DeleteView
-from braces.views._access import LoginRequiredMixin, StaffuserRequiredMixin,\
-    GroupRequiredMixin
-from django.core.cache import cache
 
 
 
@@ -114,7 +112,7 @@ def post(request, post_id):
 def markitup_preview(request, template_name="lbforum/markitup_preview.html"):
     return render(request, template_name, {'message': request.POST['data']})
 
-def get_cached_obj(pk,model_name,model_class,cache_timeout=500):
+def get_cached_obj(pk,model_name,model_class,cache_timeout=500,get_or_404=True):
     '''
     Using a primary key retrive object from the database or from the cache.
     :param pk: Primary key
@@ -127,8 +125,15 @@ def get_cached_obj(pk,model_name,model_class,cache_timeout=500):
     ck = '{0}-forum'.format(pk)
     obj = cache.get(ck)
     if not obj:
-        obj = get_object_or_404(model_class,pk=pk)
-        cache.set(ck,obj,cache_timeout)
+        if get_or_404:
+            obj = get_object_or_404(model_class,pk=pk)
+        else:
+            try:
+                obj = model_class.objects.get(pk=pk)
+            except model_class.DoesNotExist:
+                obj = None
+        if obj:
+            cache.set(ck,obj,cache_timeout)
     return obj
 
 class NewPostView(ForumGroupRequiredMixin,LoginRequiredMixin,CreateView):
@@ -136,15 +141,24 @@ class NewPostView(ForumGroupRequiredMixin,LoginRequiredMixin,CreateView):
     form_class = NewPostForm
     template_name = 'lbforum/post.html'
     
+    def dispatch(self, request, *args, **kwargs):
+        handler = super(NewPostView,self).dispatch(request,*args,**kwargs)
+        self.forum_id = self.kwargs.get('forum_id')
+        self.topic_id = self.kwargs.get('topic_id')
+        self._forum = self.get_forum()
+        self._topic = self.get_topic()
+        return handler
+    
     def get_forum(self):
-        forum_id = self.kwargs.get('forum_id')
-        topic_id = self.kwargs.get('topic_id')
-        
-        if forum_id:
-            forum = get_cached_obj(forum_id, 'forum', Forum)
-        if topic_id:
-            forum = get_cached_obj(topic_id, 'topic', Topic).forum
-        return forum
+        try:
+            return self._forum
+        except AttributeError:
+            pass
+        if self.topic_id:
+            self._forum = get_cached_obj(self.topic_id, 'topic', Topic).forum
+            return self._forum
+        self._forum = get_cached_obj(self.forum_id, 'forum', Forum)
+        return self._forum
     
     def post(self, request, *args, **kwargs):
         form_class = self.get_form_class()
@@ -159,31 +173,26 @@ class NewPostView(ForumGroupRequiredMixin,LoginRequiredMixin,CreateView):
             return self._topic
         except AttributeError:
             pass
-        self._topic = get_cached_obj(self.kwargs.get('topic_id'),'topic',Topic)
+        self._topic = get_cached_obj(self.topic_id,'topic',Topic,get_or_404=False)
         return self._topic
     
         
     def get_form_kwargs(self):
         kwargs = super(NewPostView,self).get_form_kwargs()
-        kwargs['user'] = self.request.user
-        kwargs['forum'] = self.get_forum()
-        kwargs['topic'] = get_cached_obj(self.kwargs.get('topic_id'),
-                                         'topic', Topic)
-        kwargs['ip'] = self.request.META.get('REMOTE_ADDR')
+        kwargs.update({'user':self.request.user,'forum':self._forum,
+                       'topic':get_cached_obj(self.topic_id, 'topic', Topic),
+                       'ip':self.request.META.get('REMOTE_ADDR')})
         return kwargs
     
-    def get_context_data(self, **kwargs):
-        context = super(NewPostView,self).get_context_data(**kwargs)
+    def get_first_post(self):
         topic = self.get_topic()
         if topic:
             first_post = topic.posts.order_by('created_on').select_related()[0]
         else:
             first_post = None
-        context.update(
-            {'forum':self.get_forum(),'topic':self.get_topic(),
-             'first_post':first_post}
-                       )
-        return context
+        return first_post
+    
+    
     
     def get_initial(self):
         initial = super(NewPostView,self).get_initial()
@@ -200,8 +209,32 @@ class NewPostView(ForumGroupRequiredMixin,LoginRequiredMixin,CreateView):
             return self.object.get_absolute_url_ext()
         return reverse('lbforum_forum',args=[forum.slug])
     
+    def get_context_data(self, **kwargs):
+        context = super(NewPostView,self).get_context_data(**kwargs)
+        if self._topic:
+            post_type = _('reply')
+            topic_post = False
+        else:
+            post_type = _('topic')
+            topic_post = True
+        context.update(
+            {'forum':self._forum,'topic':self.get_topic(),
+             'first_post':self.get_first_post()}
+                       )
+        return context
         
-        
+#     ext_ctx = {
+#         'forum': forum,
+#         'form': form,
+#         'topic': topic,
+#         'first_post': first_post,
+#         'post_type': post_type,
+#         'preview': preview
+#     }
+#     ext_ctx['unpublished_attachments'] = request.user.attachment_set.filter(activated=False)
+#     ext_ctx['is_new_post'] = True
+#     ext_ctx['topic_post'] = topic_post
+#     ext_ctx['session_key'] = request.session.session_key
 @login_required
 def new_post(request, forum_id=None, topic_id=None, form_class=NewPostForm,
         template_name='lbforum/post.html'):
@@ -216,6 +249,7 @@ def new_post(request, forum_id=None, topic_id=None, form_class=NewPostForm,
         topic = get_object_or_404(Topic, pk=topic_id)
         forum = topic.forum
         first_post = topic.posts.order_by('created_on').select_related()[0]
+        
     if request.method == "POST":
         form = form_class(request.POST, user=request.user, forum=forum,
                 topic=topic, ip=request.META['REMOTE_ADDR'])
