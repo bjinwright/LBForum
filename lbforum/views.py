@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-from braces.views._access import LoginRequiredMixin, StaffuserRequiredMixin,\
+from braces.views import LoginRequiredMixin, StaffuserRequiredMixin,\
     GroupRequiredMixin
 
 from django.http import HttpResponseRedirect, HttpResponse
