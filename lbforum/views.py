@@ -211,6 +211,9 @@ class NewPostView(ForumGroupRequiredMixin,LoginRequiredMixin,CreateView):
     
     def get_context_data(self, **kwargs):
         context = super(NewPostView,self).get_context_data(**kwargs)
+        preview = None
+        if self.request.method == 'POST':
+            preview = self.request.POST.get('preview', '')
         if self._topic:
             post_type = _('reply')
             topic_post = False
@@ -219,22 +222,14 @@ class NewPostView(ForumGroupRequiredMixin,LoginRequiredMixin,CreateView):
             topic_post = True
         context.update(
             {'forum':self._forum,'topic':self.get_topic(),
-             'first_post':self.get_first_post()}
+             'first_post':self.get_first_post(),
+             'post_type':post_type,'preview':preview,
+             'unpublished_attachments':self.request.user.attachment_set.filter(activated=False),
+             'is_new_post':True,'topic_post':topic_post,
+             'session_key':self.request.session.session_key}
                        )
         return context
         
-#     ext_ctx = {
-#         'forum': forum,
-#         'form': form,
-#         'topic': topic,
-#         'first_post': first_post,
-#         'post_type': post_type,
-#         'preview': preview
-#     }
-#     ext_ctx['unpublished_attachments'] = request.user.attachment_set.filter(activated=False)
-#     ext_ctx['is_new_post'] = True
-#     ext_ctx['topic_post'] = topic_post
-#     ext_ctx['session_key'] = request.session.session_key
 @login_required
 def new_post(request, forum_id=None, topic_id=None, form_class=NewPostForm,
         template_name='lbforum/post.html'):
