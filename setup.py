@@ -87,7 +87,7 @@ setup(
         "BeautifulSoup",
         "postmarkup",
         "django-pagination",
-        "PIL",
+        "pillow",
         "south>=0.7.2",
         ],
     data_files = data_files,
