@@ -50,15 +50,39 @@ class ForumGroupRequiredMixin(GroupRequiredMixin):
         return super(ForumGroupRequiredMixin,self).check_membership(groups)
     
     def get_group_required(self):
-        return self.get_forum().group
+        group = self.get_forum().group
+        if group:
+            return (group.name,)
+        return None
         
-        
+    def dispatch(self, request, *args, **kwargs):
+        response = super(GroupRequiredMixin,self).dispatch(request,*args,**kwargs)
+        self.request = request
+#         try:
+        self.object = self.get_object()
+#         except AttributeError:
+#             pass
+        if not self.get_group_required():
+            return response
+        in_group = False
+        if self.request.user.is_authenticated():
+            in_group = self.check_membership(self.get_group_required())
+
+        if not in_group:
+            if self.raise_exception:
+                raise PermissionDenied
+            else:
+                return redirect_to_login(
+                    request.get_full_path(),
+                    self.get_login_url(),
+                    self.get_redirect_field_name())
+        return response
     
 class ForumView(ForumGroupRequiredMixin,DetailView):
     template_name = 'lbforum/forum.html'
     model = Forum
     context_object_name = 'forum'
-    
+    slug_url_kwarg = 'forum_slug'
     def get_forum(self):
         return self.object
     
@@ -78,7 +102,8 @@ class ForumView(ForumGroupRequiredMixin,DetailView):
         context['topics'] = topics.order_by('-sticky', order_by).select_related()
         context['form'] = ForumForm(self.request.GET)
         context['topic_type'] = topic_type
-        context['topic_type2'] = topic_type2    
+        context['topic_type2'] = topic_type2
+        context['FORUM_PAGE_SIZE'] = 20
         return context
     
 forum = ForumView.as_view()
