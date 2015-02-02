@@ -23,13 +23,6 @@ class ForumAdmin(admin.ModelAdmin):
 admin.site.register(Forum, ForumAdmin)
 
 
-class TopicTypeAdmin(admin.ModelAdmin):
-    list_display = ('forum', 'name', 'slug', 'description', )
-    list_filter = ('forum',)
-
-admin.site.register(TopicType, TopicTypeAdmin)
-
-
 class PostInline(admin.TabularInline):
     model = Post
 

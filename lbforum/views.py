@@ -42,7 +42,7 @@ recent = RecentView.as_view()
 class ForumGroupRequiredMixin(GroupRequiredMixin):
     
     def get_forum(self):
-        pass
+        raise NotImplementedError
     
     def check_membership(self, groups):
         if groups == None:
@@ -50,9 +50,9 @@ class ForumGroupRequiredMixin(GroupRequiredMixin):
         return super(ForumGroupRequiredMixin,self).check_membership(groups)
     
     def get_group_required(self):
-        group = self.get_forum().group
-        if group:
-            return (group.name,)
+        groups = self.get_forum().groups.values_list("name", flat=True)
+        if groups:
+            return groups
         return None
         
     def dispatch(self, request, *args, **kwargs):

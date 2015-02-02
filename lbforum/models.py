@@ -38,7 +38,7 @@ class Category(models.Model):
 class Forum(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=110)
-    group = models.ForeignKey(Group,null=True,blank=True)
+    groups = models.ManyToManyField(Group,null=True,blank=True)
     description = models.TextField(default='')
     ordering = models.PositiveIntegerField(default=1)
     category = models.ForeignKey(Category)
@@ -86,15 +86,6 @@ class Forum(models.Model):
             self.save()
 
 
-class TopicType(models.Model):
-    forum = models.ForeignKey(Forum, verbose_name=_('Forum'))
-    name = models.CharField(max_length=100)
-    slug = models.SlugField(max_length=100)
-    description = models.TextField(blank=True, default='')
-
-    def __unicode__(self):
-        return self.name
-
 
 class TopicManager(models.Manager):
     def get_query_set(self):
@@ -108,8 +99,6 @@ LEVEL_CHOICES = (
 
 class Topic(models.Model):
     forum = models.ForeignKey(Forum, verbose_name=_('Forum'))
-    topic_type = models.ForeignKey(TopicType, verbose_name=_('Topic Type'),
-            blank=True, null=True)
     posted_by = models.ForeignKey(User)
 
     #TODO ADD TOPIC POST.
