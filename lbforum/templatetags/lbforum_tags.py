@@ -25,10 +25,8 @@ def bbcode(context, s, has_replied=False):
 
 
 @register.simple_tag
-def forum_url(forum, topic_type, topic_type2):
-    args = [forum.slug, topic_type, topic_type2]
-    args = [e for e in args if e]
-    return reverse('lbforum_forum', args=args)
+def forum_url(forum):
+    return reverse('lbforum_forum', args=[forum.slug])
 
 
 @register.simple_tag

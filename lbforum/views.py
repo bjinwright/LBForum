@@ -89,20 +89,9 @@ class ForumView(ForumGroupRequiredMixin,DetailView):
     def get_context_data(self, **kwargs):
         context = super(ForumView,self).get_context_data(**kwargs)
         topics = self.object.topic_set.all()
-        topic_type = self.kwargs.get('topic_type')
-        topic_type2 = self.kwargs.get('topic_type2')
-        if topic_type and topic_type != 'good':
-            topic_type2 = topic_type
-            topic_type = ''
-        if topic_type == 'good':
-            topics = topics.filter(level__gt=30)
-        if topic_type2:
-            topics = topics.filter(topic_type__slug=topic_type2)
         order_by = self.request.GET.get('order_by','-last_reply_on')
         context['topics'] = topics.order_by('-sticky', order_by).select_related()
         context['form'] = ForumForm(self.request.GET)
-        context['topic_type'] = topic_type
-        context['topic_type2'] = topic_type2
         context['FORUM_PAGE_SIZE'] = 20
         return context
     

@@ -67,18 +67,18 @@
                     {% csrf_token %} 
                 </div>
                 {% if topic_post%}
-                    {{form.topic_type}} {{form.subject}}
-                    <div class="sep10"></div>
+               {{form.subject}}
+                   
                 {% endif %}
                 {{form.message}}
-                <div class="sep10"></div>
+              
                 <div id="uploadify" class="multi-file-upload">
                     <input id="fileInput" name="file" type="file" />
                 </div>
 
                 <ul id="uploaded_files">
                 </ul>
-                <div class="sep10"></div>
+              
                 <input type="submit" class="super normal button" value="{% trans "Submit" %}" name="submit"/>
                 <input type="submit" class="super normal button" value="{% trans "Preview" %}" name="preview"/>
             </form>

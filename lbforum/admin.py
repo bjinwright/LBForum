@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from models import Category, Forum, TopicType, Topic
+from models import Category, Forum, Topic
 from models import Post, LBForumUserProfile
 
 admin.site.register(Category)
@@ -60,7 +60,7 @@ hide_unhide_topic.short_description = _("hide/unhide topics")
 
 
 class TopicAdmin(admin.ModelAdmin):
-    list_display = ('subject', 'forum', 'topic_type', 'posted_by', 'sticky', 'closed',
+    list_display = ('subject', 'forum','posted_by', 'sticky', 'closed',
             'hidden', 'level', 'num_views', 'num_replies', 'created_on', 'updated_on', )
     list_filter = ('forum', 'sticky', 'closed', 'hidden', 'level')
     search_fields = ('subject', 'posted_by__username', )

@@ -22,9 +22,6 @@ class ViewsSimpleTest(ViewsBaseCase):
         self.assertEqual(resp.status_code, 404)
         resp = self.client.get(reverse('lbforum_forum', args=("forum", )))
         self.assertEqual(resp.status_code, 200)
-        resp = self.client.get(reverse('lbforum_forum', args=("forum", "topictype", )))
-        self.assertEqual(resp.status_code, 200)
-        resp = self.client.get(reverse('lbforum_forum', args=("forum", "topictype", "good")))
         self.assertEqual(resp.status_code, 200)
 
     def test_topic(self):
