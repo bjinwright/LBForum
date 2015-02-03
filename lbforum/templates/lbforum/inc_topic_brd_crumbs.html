@@ -1,13 +1,5 @@
-<p>
-    <span class="crumb crumbfirst">
-        <a href="{% url lbforum_index %}">{{ LBFORUM_TITLE }}</a>
-    </span> 
-    <span class="crumb">
-        <span> &raquo; </span>
-        <a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.name }}</a>
-    </span> 
-    <span class="crumb crumblast">
-        <span> &raquo; </span>
-        {{ topic.subject }}
-    </span> 
-</p>
+<ol>
+  <li> <a href="{% url lbforum_index %}">{{ LBFORUM_TITLE }}</a> </li>
+  <li> <a href="{{ topic.forum.get_absolute_url }}">{{ topic.forum.name }}</a> </li>
+  <li> {{ topic.subject }} </li>
+</ol>

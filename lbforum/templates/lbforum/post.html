@@ -13,8 +13,7 @@
 {% endblock %}
 
 {% block content %}
-    <div id="actionbox">
-    </div>  
+ 
     <div id="brd-wrap" class="brd">
         <div id="brd-viewforum" class="brd-page paged-page">
            
@@ -59,7 +58,7 @@
                             {{ form|form_all_error }}
                         </div>
                     {% endif %}
-                    <form action="" accept-charset="utf-8" method="post" class="frm-form" id="afocus">
+                    <form action="" accept-charset="utf-8" method="post" class="form" id="afocus">
                         <div class="hidden" id="hidden_fields">
                             {% csrf_token %} 
                         </div>
@@ -120,8 +119,8 @@
                             </fieldset>
                         </fieldset>
                         <div class="frm-buttons">
-                            <span class="submit"><input type="submit" value="{% trans "Submit" %}" name="submit"/></span>
-                            <span class="submit"><input type="submit" value="{% trans "Preview" %}" name="preview"/></span>
+                            <span class="submit"><input type="submit" class="btn btn-primary submit" value="{% trans "Submit" %}" name="submit"/></span>
+                            <span class="submit"><input type="submit" class="btn btn-primary submit" value="{% trans "Preview" %}" name="preview"/></span>
                         </div>
                     </form>
                 </div>
