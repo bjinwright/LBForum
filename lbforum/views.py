@@ -101,7 +101,7 @@ class TopicView(ForumGroupRequiredMixin,DetailView):
     model = Topic
     context_object_name = 'topic'
     template_name = 'lbforum/topic.html'
-    
+    pk_url_kwarg = 'topic_id'
     def get_forum(self):
         return self.object.forum
     
@@ -360,7 +360,7 @@ user_posts = UserPostsView.as_view()
 
 class DeleteTopicView(StaffuserRequiredMixin,DeleteView):
     model = Topic
-    
+    pk_url_kwarg = 'topic_id'
     def delete(self, request, *args, **kwargs):
         response = super(DeleteTopicView,self).delete(request,*args,**kwargs)
         self.object.forum.update_state_info()
@@ -373,7 +373,7 @@ delete_topic = DeleteTopicView.as_view()
 
 class DeletePostView(StaffuserRequiredMixin,DeleteView):
     model = Post
-    
+    pk_url_kwarg = 'post_id'
     def get(self, *args, **kwargs):
         return self.delete(*args, **kwargs)
     
