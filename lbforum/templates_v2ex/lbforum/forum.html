@@ -38,14 +38,14 @@
                             </span> 
                         </div>
                         <span class="bigger">
-                            <a href="{% url 'lbforum_index' %}">{{ LBFORUM_TITLE }}</a>
+                            <a href="{% url lbforum_index %}">{{ LBFORUM_TITLE }}</a>
                             <span class="chevron">&raquo;</span>
                             {{ forum }}
                         </span>
                         {% if user.is_authenticated %}
         
                             <div align="left">
-                                <a href="{% url 'lbforum_new_topic' forum_id=forum.pk %}" class="super normal button">{% trans "Post new topic" %}</a>
+                                <a href="{% url lbforum_new_topic forum_id=forum.pk %}" class="super normal button">{% trans "Post new topic" %}</a>
                             </div>
                         {% endif %} 
 
