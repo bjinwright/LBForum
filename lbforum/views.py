@@ -107,7 +107,7 @@ class TopicView(ForumGroupRequiredMixin,DetailView):
     
     def get_context_data(self, **kwargs):
         context = super(TopicView,self).get_context_data(**kwargs)
-        posts = self.objects.posts
+        posts = self.object.posts
         if lbf_settings.STICKY_TOPIC_POST:
             posts = posts.filter(topic_post=False)
         posts = posts.order_by('created_on').select_related()
