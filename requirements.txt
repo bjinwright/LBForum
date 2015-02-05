@@ -7,3 +7,4 @@ postmarkup
 django-pagination
 pillow
 south>=0.7.2
+django-braces

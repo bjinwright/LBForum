@@ -83,6 +83,7 @@ setup(
         "django-helper>=0.8.1",
         "django-lb-attachments>=0.8",
         "django-onlineuser>=0.8",
+        "django-braces",
         "BeautifulSoup",
         "postmarkup",
         "django-pagination",
