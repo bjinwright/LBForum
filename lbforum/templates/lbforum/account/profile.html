@@ -16,11 +16,7 @@
 {% block main_subhead %}{% trans "Welcome to your profile" %}{% endblock %}
 
 {% block account_main_content %}
-    {% if user == view_user %}
-	<p class="content-options options">
-		<span class="item1"><a href="{% url auth_password_change %}">{% trans "Change your password" %}</a></span>
-	</p>
-    {% endif %}
+
     
 	<div class="profile ct-group data-group vcard">
 		<div class="ct-set data-set set1">
