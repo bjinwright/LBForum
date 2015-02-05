@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView,DetailView,CreateView, DeleteView
 from django.core.cache import cache
@@ -221,7 +221,7 @@ class NewPostView(ForumGroupRequiredMixin,LoginRequiredMixin,CreateView):
         topic = self.get_topic()
         if topic:
             return self.object.get_absolute_url_ext()
-        return reverse('lbforum_forum',args=[forum.slug])
+        return reverse_lazy('lbforum_forum',args=[forum.slug])
     
     def get_context_data(self, **kwargs):
         context = super(NewPostView,self).get_context_data(**kwargs)
@@ -367,7 +367,7 @@ class DeleteTopicView(StaffuserRequiredMixin,DeleteView):
         return response
     
     def get_success_url(self):
-        return reverse("lbforum_forum",args=[self.object.forum.slug])
+        return reverse_lazy("lbforum_forum",args=[self.object.forum.slug])
 
 delete_topic = DeleteTopicView.as_view()
 
@@ -385,7 +385,7 @@ class DeletePostView(StaffuserRequiredMixin,DeleteView):
         return response
     
     def get_success_url(self):
-        return reverse("lbforum_topic",args=[self.object.topic.id])
+        return reverse_lazy("lbforum_topic",args=[self.object.topic.id])
 
 delete_post = DeletePostView.as_view()
 
