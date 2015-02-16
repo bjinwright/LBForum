@@ -18,6 +18,8 @@ from django.core.cache import cache
 from forms import EditPostForm, NewPostForm, ForumForm
 from models import Topic, Forum, Post
 import settings as lbf_settings
+from django.contrib.auth.views import redirect_to_login
+from django.core.exceptions import PermissionDenied
 
 
 
