@@ -64,16 +64,6 @@
  }, 
  {
   "pk": 1, 
-  "model": "lbforum.topictype", 
-  "fields": {
-   "description": "forum topic type", 
-   "name": "topictype", 
-   "forum": 1, 
-   "slug": "topictype"
-  }
- }, 
- {
-  "pk": 1, 
   "model": "lbforum.topic", 
   "fields": {
    "hidden": false, 
