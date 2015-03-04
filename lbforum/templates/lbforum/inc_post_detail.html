@@ -18,8 +18,8 @@
     <div class="postbody">
         <div class="post-author">
             <ul class="author-ident">
-                <li class="useravatar"><a href="{% url lbforum_user_profile user_id=post.posted_by.pk %}">{% avatar post.posted_by %}</a></li>
-                <li class="username"> <a href="{% url lbforum_user_profile user_id=post.posted_by.pk %}">{{post.posted_by.username}}</a> </li>
+                <li class="useravatar">{% avatar post.posted_by %}</li>
+                <li class="username"> {{post.posted_by.username}}</li>
                 <li class="usertitle"><span>{% trans "Member" %}</span></li>
                 <li class="userstatus"><span>{{post.posted_by|online}}</span></li>
             </ul>
