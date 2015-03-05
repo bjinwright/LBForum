@@ -2,6 +2,7 @@
 {% load humanize %}
 
 {% block content %}
+<div id="wrapper">
 <table>
   <tr>
     <th>Title</th>
@@ -22,5 +23,6 @@
 		{% if page_obj.has_previous %}<a href="{% url video_list %}?page={{page_obj.previous_page_number}}">Previous</a> | {% endif %}
 		Page {{page_obj.number}} of {{paginator.num_pages}}
 		{% if page_obj.has_next %} | <a href="{% url video_list %}?page={{page_obj.next_page_number}}">Next</a>{% endif %}
+	</div>
 	</div>
 {% endblock %}
