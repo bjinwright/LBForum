@@ -7,6 +7,7 @@ from lbforum import views, accountviews
 forum_patterns = patterns(
     '',
     url(r'^(?P<forum_slug>[\w-]+)/$', views.forum, name='lbforum_forum'),
+    url(r'^(?P<forum_slug>[\w-]+)/$', views.forum_files, name='lbforum_forum_files'),
 
 )
 

@@ -234,7 +234,12 @@ class Post(models.Model):
         page = (post_idx - 1) / settings.CTX_CONFIG['TOPIC_PAGE_SIZE'] + 1
         return '%s?page=%s#p%s' % (topic.get_absolute_url(), page, self.pk)
 
-
+class ForumFile(models.Model):
+    title = models.CharField(max_length=100)
+    file = models.FileField(upload_to='forum')
+    uploaded_by = models.ForeignKey(User)
+    forum = models.ForeignKey(Forum)
+    
 class LBForumUserProfile(models.Model):
     user = models.OneToOneField(User, related_name='lbforum_profile',
                                 verbose_name=_('User'))

@@ -2,9 +2,9 @@
 # -*- coding: UTF-8 -*-
 
 from braces.views import LoginRequiredMixin, StaffuserRequiredMixin,\
-    GroupRequiredMixin
+    GroupRequiredMixin, UserPassesTestMixin
 
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -20,6 +20,7 @@ from models import Topic, Forum, Post
 import settings as lbf_settings
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
+from lbforum.models import ForumFile
 
 
 
@@ -410,3 +411,30 @@ def update_topic_attr_as_not(request, topic_id, attr):
                                             args=[topic.forum.slug]))
     else:
         return HttpResponseRedirect(reverse("lbforum_topic", args=[topic.id]))
+    
+class ForumFileListView(UserPassesTestMixin,ListView):
+    model = ForumFile
+    
+    def get_forum(self):
+        try:
+            #If we've already called get forum earlier just return the self._forum attribute
+            return self._forum
+        except AttributeError:
+            pass
+        try:
+            self._forum = Forum.objects.get(pk=self.kwargs.get('forum_slug'))
+        except Forum.DoesNotExist:
+            raise HttpResponseNotFound
+        
+    def test_func(self, user):
+        forum = self.get_forum()
+        if forum.group:
+            return user.groups.filter(name=forum.group.name).exists()
+        return True
+    
+    def get_queryset(self):
+        
+        return self.model.objects.filter(forum=self.forum)
+
+forum_files = ForumFileListView.as_view()
+    
