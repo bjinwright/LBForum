@@ -440,7 +440,7 @@ class ForumFileListView(FileForumGroupRequiredMixin,ListView):
 
 forum_files = ForumFileListView.as_view()
     
-class ForumFileCreateView(FileForumGroupRequiredMixin,CreateView):
+class ForumFileCreateView(CreateView):
     model = ForumFile
     template_name = 'lbforum/upload-file.html'
     form_class = ForumFileForm
