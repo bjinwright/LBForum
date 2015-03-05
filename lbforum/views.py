@@ -23,6 +23,7 @@ from forms import EditPostForm, NewPostForm, ForumForm
 from models import Topic, Forum, Post
 import settings as lbf_settings
 from lbforum.forms import ForumFileForm
+from pip.utils.outdated import SELFCHECK_DATE_FMT
 
 
 
@@ -447,7 +448,9 @@ class ForumFileCreateView(FileForumGroupRequiredMixin,CreateView):
     
     def form_valid(self, form):
         obj = form.save(commit=False)
-        obj.uploaded_by = self.request.user
+        user = self.request.user
+        user_pk = user.pk
+        obj.uploaded_by = user
         obj.forum = self.get_forum()
         obj.save()
         return super(ForumFileCreateView,self).form_valid(form)
