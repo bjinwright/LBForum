@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {% block content %}
 <div id="wrapper">
-<div class="container">
+
 <form method="post" enctype="multipart/form-data">
 {% csrf_token %}
     {{ form|crispy }}
@@ -11,6 +11,6 @@
     </div>
     
 </form>
-</div>
+
 </div>
 {% endblock %}
