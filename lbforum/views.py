@@ -439,6 +439,10 @@ class ForumFileListView(LoginRequiredMixin,FileForumGroupRequiredMixin,ListView)
     def get_queryset(self):
         return self.model.objects.filter(forum=self.get_forum())
 
+    def get_context_data(self, **kwargs):
+        context = super(ForumFileListView,self).get_context_data(**kwargs)
+        context['forum'] = self.get_forum()
+        return context
 forum_files = ForumFileListView.as_view()
     
 class ForumFileCreateView(LoginRequiredMixin,FileForumGroupRequiredMixin,CreateView):

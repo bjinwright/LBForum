@@ -3,6 +3,7 @@
 {% block content %}
 <div id="wrapper">
 <img alt="Video Library" src="{{STATIC_URL}}img/forums.png">
+<h2>Upload a File</h2>
 <form method="post" enctype="multipart/form-data">
 {% csrf_token %}
     {{ form|crispy }}
