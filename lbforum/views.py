@@ -426,6 +426,7 @@ class FileForumGroupRequiredMixin(ForumGroupRequiredMixin):
             pass
         try:
             self._forum = Forum.objects.get(slug=self.kwargs.get('forum_slug'))
+            return self._forum
         except Forum.DoesNotExist:
             raise HttpResponseNotFound
     
