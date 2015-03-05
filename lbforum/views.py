@@ -432,7 +432,7 @@ class FileForumGroupRequiredMixin(ForumGroupRequiredMixin):
         except Forum.DoesNotExist:
             raise HttpResponseNotFound
     
-class ForumFileListView(FileForumGroupRequiredMixin,ListView):
+class ForumFileListView(LoginRequiredMixin,FileForumGroupRequiredMixin,ListView):
     model = ForumFile
     template_name = 'lbforum/files.html'
     
@@ -441,7 +441,7 @@ class ForumFileListView(FileForumGroupRequiredMixin,ListView):
 
 forum_files = ForumFileListView.as_view()
     
-class ForumFileCreateView(FileForumGroupRequiredMixin,CreateView):
+class ForumFileCreateView(LoginRequiredMixin,FileForumGroupRequiredMixin,CreateView):
     model = ForumFile
     template_name = 'lbforum/upload-file.html'
     form_class = ForumFileForm
