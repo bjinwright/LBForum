@@ -10,7 +10,7 @@
   </tr>
   	{% for file in object_list %}
   <tr>
-    <td><a href="{{file.file.url}}">{{file.title}}</a></td>
+    <td><a href="{{file.file.url}}" target="_blank">{{file.title}}</a></td>
     <td>{{file.uploaded_by}}</td>
     <td>{{file.upload_date|naturaltime}}</td>
   </tr>
