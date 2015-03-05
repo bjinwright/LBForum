@@ -61,10 +61,10 @@ class ForumGroupRequiredMixin(GroupRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
         response = super(GroupRequiredMixin,self).dispatch(request,*args,**kwargs)
         self.request = request
-#         try:
-        self.object = self.get_object()
-#         except AttributeError:
-#             pass
+        try:
+            self.object = self.get_object()
+        except AttributeError:
+            pass
         if not self.get_group_required():
             return response
         in_group = False
