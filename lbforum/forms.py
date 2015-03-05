@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from models import Topic, Post
 from models import LBForumUserProfile
+from lbforum.models import ForumFile
 
 FORUM_ORDER_BY_CHOICES = (
     ('-last_reply_on', _('Last Reply')),
@@ -17,7 +18,12 @@ FORUM_ORDER_BY_CHOICES = (
 class ForumForm(forms.Form):
     order_by = forms.ChoiceField(label=_('Order By'), choices=FORUM_ORDER_BY_CHOICES, required=False)
 
-
+class ForumFileForm(forms.ModelForm):
+    
+    class Meta:
+        model = ForumFile
+        exclude = ('uploaded_by','forum')
+        
 class PostForm(forms.ModelForm):
     subject = forms.CharField(label=_('Subject'), widget=forms.TextInput(attrs={'size': '80'}))
     message = forms.CharField(label=_('Message'), widget=forms.Textarea(attrs={'cols': '95', 'rows': '14'}))

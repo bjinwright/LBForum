@@ -4,6 +4,7 @@
 <div id="wrapper">
 <div class="container">
 <form method="post">
+{% csrf_token %}
     {{ form|crispy }}
     <div class="form-group">
     <input type="submit" name="submit-signin" value="Submit" class="btn btn-primary submit" id="submit-id-submit-signin">
