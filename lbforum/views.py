@@ -435,7 +435,7 @@ class FileForumGroupRequiredMixin(ForumGroupRequiredMixin):
 class ForumFileListView(LoginRequiredMixin,FileForumGroupRequiredMixin,ListView):
     model = ForumFile
     template_name = 'lbforum/files.html'
-    
+    paginate_by = 20
     def get_queryset(self):
         return self.model.objects.filter(forum=self.get_forum())
 
