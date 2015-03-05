@@ -423,7 +423,7 @@ class ForumFileListView(ForumGroupRequiredMixin,ListView):
         except AttributeError:
             pass
         try:
-            self._forum = Forum.objects.get(pk=self.kwargs.get('forum_slug'))
+            self._forum = Forum.objects.get(slug=self.kwargs.get('forum_slug'))
         except Forum.DoesNotExist:
             raise HttpResponseNotFound
         
