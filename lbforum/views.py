@@ -446,6 +446,9 @@ class ForumFileCreateView(LoginRequiredMixin,FileForumGroupRequiredMixin,CreateV
     template_name = 'lbforum/upload-file.html'
     form_class = ForumFileForm
     
+    def get_success_url(self):
+        return reverse_lazy('lbforum_forum_files',args=[self.get_forum().slug])
+    
     def form_valid(self, form):
         obj = form.save(commit=False)
         user = self.request.user
