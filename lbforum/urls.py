@@ -8,7 +8,7 @@ forum_patterns = patterns(
     '',
     url(r'^(?P<forum_slug>[\w-]+)/$', views.forum, name='lbforum_forum'),
     url(r'^(?P<forum_slug>[\w-]+)/files/$', views.forum_files, name='lbforum_forum_files'),
-
+    url(r'^(?P<forum_slug>[\w-]+)/files/upload/$', views.forum_files_upload, name='lbforum_files_upload'),
 )
 
 topic_patterns = patterns(

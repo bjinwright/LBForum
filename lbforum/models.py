@@ -238,7 +238,11 @@ class ForumFile(models.Model):
     title = models.CharField(max_length=100)
     file = models.FileField(upload_to='forum')
     uploaded_by = models.ForeignKey(User)
+    upload_date = models.DateTimeField(auto_now_add=True)
     forum = models.ForeignKey(Forum)
+    
+    def __unicode__(self):
+        return self.title
     
 class LBForumUserProfile(models.Model):
     user = models.OneToOneField(User, related_name='lbforum_profile',

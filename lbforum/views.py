@@ -12,15 +12,19 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView,DetailView,CreateView, DeleteView
+from django.views.generic import ListView,DetailView,CreateView, DeleteView,RedirectView
 from django.core.cache import cache
-
-from forms import EditPostForm, NewPostForm, ForumForm
-from models import Topic, Forum, Post
-import settings as lbf_settings
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
+
 from lbforum.models import ForumFile
+from forms import EditPostForm, NewPostForm, ForumForm
+
+from models import Topic, Forum, Post
+import settings as lbf_settings
+
+
+
 
 
 
@@ -413,9 +417,7 @@ def update_topic_attr_as_not(request, topic_id, attr):
         return HttpResponseRedirect(reverse("lbforum_topic", args=[topic.id]))
     
 
-class ForumFileListView(ForumGroupRequiredMixin,ListView):
-    model = ForumFile
-    
+class FileForumGroupRequiredMixin(ForumGroupRequiredMixin):
     def get_forum(self):
         try:
             #If we've already called get forum earlier just return the self._forum attribute
@@ -426,10 +428,24 @@ class ForumFileListView(ForumGroupRequiredMixin,ListView):
             self._forum = Forum.objects.get(slug=self.kwargs.get('forum_slug'))
         except Forum.DoesNotExist:
             raise HttpResponseNotFound
-        
+    
+class ForumFileListView(FileForumGroupRequiredMixin,ListView):
+    model = ForumFile
+    template_name = 'lbforum/files.html'
     
     def get_queryset(self):
         return self.model.objects.filter(forum=self.get_forum())
 
 forum_files = ForumFileListView.as_view()
     
+class ForumFileCreateView(FileForumGroupRequiredMixin,CreateView):
+    model = ForumFile
+    template_name = 'lbforum/upload-file.html'
+    
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.uploaded_by = self.request.user
+        obj.save()
+        return super(ForumFileCreateView,self).form_valid(form)
+    
+forum_files_upload = ForumFileCreateView.as_view()
