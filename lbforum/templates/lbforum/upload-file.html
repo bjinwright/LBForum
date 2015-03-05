@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
+<div class="container">
 <form method="post">
     {{ form|crispy }}
     <div class="form-group">
@@ -8,4 +9,5 @@
     </div>
     
 </form>
+</div>
 {% endblock %}
