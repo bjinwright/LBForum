@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
 {% load humanize %}
 
+{% block additional_css %}
+<link rel="stylesheet" href="{{STATIC_URL}}css/studytipsandbreaks.css">
+    {% endblock %}
+    
 {% block content %}
+
 <div id="wrapper">
 <table>
   <tr>
