@@ -412,7 +412,8 @@ def update_topic_attr_as_not(request, topic_id, attr):
     else:
         return HttpResponseRedirect(reverse("lbforum_topic", args=[topic.id]))
     
-class ForumFileListView(UserPassesTestMixin,ListView):
+
+class ForumFileListView(ForumGroupRequiredMixin,ListView):
     model = ForumFile
     
     def get_forum(self):
@@ -426,15 +427,9 @@ class ForumFileListView(UserPassesTestMixin,ListView):
         except Forum.DoesNotExist:
             raise HttpResponseNotFound
         
-    def test_func(self, user):
-        forum = self.get_forum()
-        if forum.group:
-            return user.groups.filter(name=forum.group.name).exists()
-        return True
     
     def get_queryset(self):
-        
-        return self.model.objects.filter(forum=self.forum)
+        return self.model.objects.filter(forum=self.get_forum())
 
 forum_files = ForumFileListView.as_view()
     
