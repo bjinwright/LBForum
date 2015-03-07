@@ -16,7 +16,7 @@ from django.views.generic import ListView,DetailView,CreateView, DeleteView,Redi
 from django.core.cache import cache
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
-
+from django.contrib import messages
 from lbforum.models import ForumFile
 from forms import EditPostForm, NewPostForm, ForumForm
 
@@ -24,10 +24,6 @@ from models import Topic, Forum, Post
 import settings as lbf_settings
 from lbforum.forms import ForumFileForm
 from pip.utils.outdated import SELFCHECK_DATE_FMT
-
-
-
-
 
 
 class IndexView(ListView):
@@ -81,6 +77,7 @@ class ForumGroupRequiredMixin(GroupRequiredMixin):
             if self.raise_exception:
                 raise PermissionDenied
             else:
+                messages.error(request, 'You do not have permission to view this page.')
                 return redirect_to_login(
                     request.get_full_path(),
                     self.get_login_url(),
