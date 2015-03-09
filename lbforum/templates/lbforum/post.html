@@ -94,29 +94,10 @@
                                         </span> 
                                         <label for="fld3">{% trans "reply to see the post" %}</label>
                                     </div>
-                                    <div class="mf-item">
-                                        <span class="fld-input">
-                                            {{form.need_reply_attachments}}
-                                        </span> 
-                                        <label for="fld3">{% trans "reply to see the attachments" %}</label>
-                                    </div>
                                 </div>
                             </fieldset>
                             {% endif %}
-                            <fieldset class="mf-set set4">
-                                <legend><span>{% trans "Attachments" %}:</span></legend>
-                                <div class="mf-box checkbox">
-									<div class="mf-item">
-
-										<div id="uploadify" class="multi-file-upload">
-											<input id="fileInput" name="file" type="file" />
-										</div>
-
-										<ul id="uploaded_files">
-										</ul>
-									</div>
-                                </div>
-                            </fieldset>
+       
                         </fieldset>
                         <div class="frm-buttons">
                             <input type="submit" class="btn btn-primary submit" value="{% trans "Submit" %}" name="submit"/>
