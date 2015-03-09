@@ -5,8 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from models import Category, Forum, Topic
 from models import Post, LBForumUserProfile
-from Carbon.QuickDraw import adMin
-from django.conf.global_settings import ADMINS
+
+
 from lbforum.models import ForumFile
 
 admin.site.register(Category)
