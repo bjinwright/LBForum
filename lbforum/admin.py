@@ -26,7 +26,7 @@ class ForumAdmin(admin.ModelAdmin):
 admin.site.register(Forum, ForumAdmin)
 
 class ForumFileAdmin(admin.ModelAdmin):
-    list_display = ('title','file','uploaded_by', 'uploaded_date')
+    list_display = ('title','file','uploaded_by', 'upload_date')
     search_fields = ('title','file','uploaded_by')
     
 admin.site.register(ForumFile,ForumFileAdmin)
