@@ -27,14 +27,13 @@ class ForumFileForm(forms.ModelForm):
 class PostForm(forms.ModelForm):
     subject = forms.CharField(label=_('Subject'), widget=forms.TextInput(attrs={'size': '80'}))
     message = forms.CharField(label=_('Message'), widget=forms.Textarea(attrs={'cols': '95', 'rows': '14'}))
-    attachments = forms.Field(label=_('Attachments'), required=False, widget=forms.SelectMultiple())
+    
     need_replay = forms.BooleanField(label=_('Need Reply'), required=False)
-    need_reply_attachments = forms.BooleanField(label=_('Attachments Need Reply'), required=False)
 
     class Meta:
         model = Post
         fields = ('message',)
-
+        excludes = ('attachments',)
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         self.topic = kwargs.pop('topic', None)
@@ -44,8 +43,7 @@ class PostForm(forms.ModelForm):
         if self.instance.id:
             self.forum = self.instance.topic.forum
 
-        self.fields.keyOrder = ['subject', 'message', 'attachments', 'need_replay',
-                'need_reply_attachments']
+        self.fields.keyOrder = ['subject', 'message', 'need_replay']
 
 
 class EditPostForm(PostForm):
@@ -53,7 +51,6 @@ class EditPostForm(PostForm):
         super(EditPostForm, self).__init__(*args, **kwargs)
         self.initial['subject'] = self.instance.topic.subject
         self.initial['need_replay'] = self.instance.topic.need_replay
-        self.initial['need_reply_attachments'] = self.instance.topic.need_reply_attachments
         if not self.instance.topic_post:
             self.fields['subject'].required = False
 
@@ -62,13 +59,10 @@ class EditPostForm(PostForm):
         post.message = self.cleaned_data['message']
         post.updated_on = datetime.now()
         post.edited_by = self.user.username
-        attachments = self.cleaned_data['attachments']
-        post.update_attachments(attachments)
         post.save()
         if post.topic_post:
             post.topic.subject = self.cleaned_data['subject']
             post.topic.need_replay = self.cleaned_data['need_replay']
-            post.topic.need_reply_attachments = self.cleaned_data['need_reply_attachments']
             post.topic.save()
         return post
 
@@ -85,9 +79,7 @@ class NewPostForm(PostForm):
             topic = Topic(forum=self.forum,
                           posted_by=self.user,
                           subject=self.cleaned_data['subject'],
-                          need_replay=self.cleaned_data['need_replay'],
-                          need_reply_attachments=self.cleaned_data['need_reply_attachments'],
-
+                          need_replay=self.cleaned_data['need_replay']
                           )
             topic_post = True
             topic.save()
@@ -99,8 +91,6 @@ class NewPostForm(PostForm):
         if topic_post:
             topic.post = post
             topic.save()
-        attachments = self.cleaned_data['attachments']
-        post.update_attachments(attachments)
         return post
 
 
