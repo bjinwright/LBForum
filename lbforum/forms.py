@@ -28,12 +28,11 @@ class PostForm(forms.ModelForm):
     subject = forms.CharField(label=_('Subject'), widget=forms.TextInput(attrs={'size': '80'}))
     message = forms.CharField(label=_('Message'), widget=forms.Textarea(attrs={'cols': '95', 'rows': '14'}))
     
-    need_replay = forms.BooleanField(label=_('Need Reply'), required=False)
 
     class Meta:
         model = Post
         fields = ('message',)
-        excludes = ('attachments',)
+        excludes = ('attachments','need_replay',)
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         self.topic = kwargs.pop('topic', None)
@@ -43,14 +42,14 @@ class PostForm(forms.ModelForm):
         if self.instance.id:
             self.forum = self.instance.topic.forum
 
-        self.fields.keyOrder = ['subject', 'message', 'need_replay']
+        self.fields.keyOrder = ['subject', 'message']
 
 
 class EditPostForm(PostForm):
     def __init__(self, *args, **kwargs):
         super(EditPostForm, self).__init__(*args, **kwargs)
         self.initial['subject'] = self.instance.topic.subject
-        self.initial['need_replay'] = self.instance.topic.need_replay
+
         if not self.instance.topic_post:
             self.fields['subject'].required = False
 
@@ -62,7 +61,6 @@ class EditPostForm(PostForm):
         post.save()
         if post.topic_post:
             post.topic.subject = self.cleaned_data['subject']
-            post.topic.need_replay = self.cleaned_data['need_replay']
             post.topic.save()
         return post
 
@@ -79,7 +77,6 @@ class NewPostForm(PostForm):
             topic = Topic(forum=self.forum,
                           posted_by=self.user,
                           subject=self.cleaned_data['subject'],
-                          need_replay=self.cleaned_data['need_replay']
                           )
             topic_post = True
             topic.save()
