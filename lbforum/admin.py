@@ -5,6 +5,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from models import Category, Forum, Topic
 from models import Post, LBForumUserProfile
+from Carbon.QuickDraw import adMin
+from django.conf.global_settings import ADMINS
+from lbforum.models import ForumFile
 
 admin.site.register(Category)
 
@@ -22,6 +25,11 @@ class ForumAdmin(admin.ModelAdmin):
 
 admin.site.register(Forum, ForumAdmin)
 
+class ForumFileAdmin(admin.ModelAdmin):
+    list_display = ('title','file','uploaded_by', 'uploaded_date')
+    search_fields = ('title','file','uploaded_by')
+    
+admin.site.register(ForumFile,ForumFileAdmin)
 
 class PostInline(admin.TabularInline):
     model = Post
