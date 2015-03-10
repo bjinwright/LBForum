@@ -46,10 +46,13 @@ class IndexView(ListView):
             forum_groups = get_objs_groups(forum)
             if len(forum_groups) != 0:
                 if self.request.user.is_authenticated():
-                    user_groups = get_objs_groups(self.request.user)
-                    is_authorized = bool(set(forum_groups).intersection(user_groups))
-                    if is_authorized:
+                    if self.request.user.is_superuser:
                         users_forums.append(forum)
+                    else:
+                        user_groups = get_objs_groups(self.request.user)
+                        is_authorized = bool(set(forum_groups).intersection(user_groups))
+                        if is_authorized:
+                            users_forums.append(forum)
             else:
                 users_forums.append(forum)
         return users_forums
