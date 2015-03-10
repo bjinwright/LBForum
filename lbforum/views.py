@@ -37,7 +37,7 @@ class IndexView(ListView):
     template_name = 'lbforum/index.html'
     paginate_by = 20
     context_object_name = 'forums'
-    models = Forum
+    model = Forum
     
     def get_queryset(self):
         qs = self.model.objects.all()
