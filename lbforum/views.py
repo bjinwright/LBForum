@@ -26,7 +26,7 @@ from lbforum.forms import ForumFileForm
 from pip.utils.outdated import SELFCHECK_DATE_FMT
 
 def get_objs_groups(obj):
-    ck = '{0}-{1}-groups'.format(obj.pk,obj.__class__.__name__)
+    ck = '{0}-{1}-groups'.format(obj.pk,obj.__class__.__name__.lower())
     groups = cache.get(ck)
     if not groups:
         groups = obj.groups.values_list("name",flat=True)

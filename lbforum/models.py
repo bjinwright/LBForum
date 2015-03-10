@@ -9,9 +9,11 @@ from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Sum
 from django.conf import settings
+from django.core.cache import cache
 
 from attachments.models import Attachment
 from onlineuser.models import Online
+from _sqlite3 import Cache
 
 
 class Config(models.Model):
@@ -85,8 +87,12 @@ class Forum(models.Model):
         if commit:
             self.save()
 
-
-
+    def save(self, force_insert=False, force_update=False, using=None):
+        super(Forum,self).save(force_insert=force_insert,force_update=force_update,using=using)
+        if self.pk:
+            cache.delete('{0}-forum-groups'.format(self.pk))
+        
+        
 class TopicManager(models.Manager):
     def get_query_set(self):
         return super(TopicManager, self).get_query_set().filter(hidden=False)
