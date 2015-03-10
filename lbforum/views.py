@@ -45,7 +45,7 @@ class IndexView(ListView):
         for forum in qs:
             forum_groups = get_objs_groups(forum)
             if len(forum_groups) != 0:
-                if self.request.user.is_authtenticated():
+                if self.request.user.is_authenticated():
                     user_groups = get_objs_groups(self.request.user)
                     is_authorized = bool(set(forum_groups).intersection(user_groups))
                     if is_authorized:
