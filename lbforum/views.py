@@ -25,13 +25,34 @@ import settings as lbf_settings
 from lbforum.forms import ForumFileForm
 from pip.utils.outdated import SELFCHECK_DATE_FMT
 
+def get_objs_groups(obj):
+    ck = '{0}-{1}-groups'.format(obj.pk,obj.__class__.__name__)
+    groups = cache.get(ck)
+    if not groups:
+        groups = obj.groups.values_list("name",flat=True)
+        cache.set(ck,groups,500)
+    return groups
 
 class IndexView(ListView):
     template_name = 'lbforum/index.html'
     paginate_by = 20
-    context_object_name = 'topics'
+    context_object_name = 'forums'
+    models = Forum
+    
     def get_queryset(self):
-        return Topic.objects.all().order_by('-last_reply_on')
+        qs = self.model.objects.all()
+        users_forums = []
+        for forum in qs:
+            forum_groups = get_objs_groups(forum)
+            if len(forum_groups) != 0:
+                if self.request.user.is_authtenticated():
+                    user_groups = get_objs_groups(self.request.user)
+                    is_authorized = bool(set(forum_groups).intersection(user_groups))
+                    if is_authorized:
+                        users_forums.append(forum)
+            else:
+                users_forums.append(forum)
+        return users_forums
     
 index = IndexView.as_view()
 

@@ -1,9 +1,9 @@
 {% load i18n %}
 {% load lbforum_filters %}
 {% load lbforum_tags %}
-{% for category in categories %}
+
 <div class="main-subhead">
-    <h2 class="hn"><span>{{ category }}</span></h2>
+    <h2 class="hn"><span>General</span></h2>
     <p class="item-summary"> 
         <span>
             <strong class="info-topics">{% trans "topics" %}</strong>,
@@ -13,7 +13,7 @@
     </p>
 </div>
 <div class="main-content main-category">
-    {% for forum in category.forum_set.all %}
+    {% for forum in forums %}
     <div id="forum" class="main-item {% cycle 'odd' 'even' %} {% if forloop.first %}main-item1{% endif %}">
         <span class="icon "><!-- --></span>
 
@@ -40,4 +40,3 @@
     </div>
     {% endfor %}
 </div>
-{% endfor %}
