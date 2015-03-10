@@ -281,7 +281,10 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         LBForumUserProfile.objects.create(user=instance)
 
-
+def clear_user_forum_cache(sender,instance,created,**kwargs):
+    if not created:
+        cache.delete('{0}-user-groups'.format(instance.pk))
+        
 def update_topic_on_post(sender, instance, created, **kwargs):
     if created:
         t = instance.topic
@@ -315,6 +318,7 @@ def update_user_last_activity(sender, instance, created, **kwargs):
         p.last_activity = instance.updated_on
         p.save()
 
+post_save.connect(clear_user_forum_cache,sender=User)
 post_save.connect(create_user_profile, sender=User)
 post_save.connect(update_topic_on_post, sender=Post)
 post_save.connect(update_forum_on_post, sender=Post)
