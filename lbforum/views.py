@@ -69,6 +69,7 @@ index = IndexView.as_view()
 class MyGroups(IndexView):
     show_exam_aid = True
     template_name = 'lbforum/my-groups.html'
+    paginate_by = None
     
 my_groups = MyGroups.as_view()
 
