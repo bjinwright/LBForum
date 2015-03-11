@@ -23,7 +23,7 @@ from forms import EditPostForm, NewPostForm, ForumForm
 from models import Topic, Forum, Post
 import settings as lbf_settings
 from lbforum.forms import ForumFileForm
-from pip.utils.outdated import SELFCHECK_DATE_FMT
+
 from django.conf import settings
 
 def get_objs_groups(obj):
