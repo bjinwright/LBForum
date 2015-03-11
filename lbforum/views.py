@@ -24,6 +24,7 @@ from models import Topic, Forum, Post
 import settings as lbf_settings
 from lbforum.forms import ForumFileForm
 from pip.utils.outdated import SELFCHECK_DATE_FMT
+from django.conf import settings
 
 def get_objs_groups(obj):
     ck = '{0}-{1}-groups'.format(obj.pk,obj.__class__.__name__.lower())
@@ -38,9 +39,15 @@ class IndexView(ListView):
     paginate_by = 20
     context_object_name = 'forums'
     model = Forum
+    show_exam_aid = False
     
     def get_queryset(self):
-        qs = self.model.objects.all()
+        if self.show_exam_aid:
+            qs = self.model.objects.all()
+        else:
+            qs = self.model.objects.exclude(
+                groups__name=settings.FORUM_EXAM_AID_GROUP_NAME)
+        
         users_forums = []
         for forum in qs:
             forum_groups = get_objs_groups(forum)
@@ -58,6 +65,12 @@ class IndexView(ListView):
         return users_forums
     
 index = IndexView.as_view()
+
+class MyGroups(IndexView):
+    show_exam_aid = True
+    template_name = 'lbforum/my-groups.html'
+    
+my_groups = MyGroups.as_view()
 
 class RecentView(ListView):
     template_name = 'lbforum/recent.html'
