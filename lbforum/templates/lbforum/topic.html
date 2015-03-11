@@ -98,32 +98,7 @@
             <div class="crumbs gen-content" id="brd-crumbs-end">
                 {% include 'lbforum/inc_topic_brd_crumbs.html' %}
             </div>
-            {% if not topic.closed %} {% if user.is_authenticated %}
-                    <div class="main-subhead">
-                        <h2 class="hn"><span>{% trans "Quick reply to this topic" %}</span></h2>
-                    </div>
-                    <div class="main-content main-frm" id="brd-qpost">
-                        <p class="content-options options">{% trans "You may use" %}: <span class="item1"><a title="Help with: BBCode" href="http://fluxbb.org/forums/help/bbcode/" class="exthelp">BBCode</a></span> <span><a title="Help with: Images" href="http://fluxbb.org/forums/help/img/" class="exthelp">Images</a></span> <span><a title="Help with: Smilies" href="http://fluxbb.org/forums/help/smilies/" class="exthelp">Smilies</a></span></p>
-                        <form action="{% url lbforum_new_replay topic_id=topic.pk %}" accept-charset="utf-8" method="post" class="frm-form">
-                            <div class="hidden">
-                                {% csrf_token %} 
-                            </div>
-                            <fieldset class="frm-group group1">
-                                <legend class="group-legend"><strong>{% trans "Compose your post" %}</strong></legend>
-                                <div class="txt-set set1">
-                                    <div class="txt-box textarea required">
-                                        <label for="fld1"><span>{% trans "Write message" %}: <em>({% trans "Required" %})</em></span></label>
-                                        <div class="txt-input"><span class="fld-input"><textarea cols="95" rows="7" name="message" id="fld1"></textarea></span></div>
-                                    </div>
-                                </div>
-                            </fieldset>
-                            <div class="frm-buttons">
-                                <span class="submit"><input type="submit" value="{% trans "Submit" %}" name="submit"/></span>
-                                <span class="submit"><input type="submit" value="{% trans "Preview" %}" name="preview"/></span>
-                            </div>
-                        </form>
-                    </div>
-                {% endif %} {% endif %}
+            
             <div class="hr"><hr /></div>
             
         </div>
