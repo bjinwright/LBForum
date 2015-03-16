@@ -4,7 +4,7 @@ from lbforum.models import Forum
 
 register = template.Library()
 
-@register.inclusion_tag('lbforum/tags/exam_aid.html', takes_context=True)
+@register.inclusion_tag('lbforum/tags/exam_aid.html')
 def exam_aid_forum(exam_slug):
     try:
         forum = Forum.objects.get(slug=exam_slug)
