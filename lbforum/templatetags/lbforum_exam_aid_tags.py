@@ -14,7 +14,7 @@ def exam_aid_forum(exam_slug):
         return {}
     
     topics = forum.topic_set.all().order_by(
-                        '-last_reply_on').select_related()
+                        '-last_reply_on').select_related()[:10]
     
     return {
         'forum':forum,
