@@ -499,14 +499,14 @@ class ForumFileCreateView(LoginRequiredMixin,FileForumGroupRequiredMixin,CreateV
     
 forum_files_upload = ForumFileCreateView.as_view()
 
-class ExamAidTopicListView(ForumView):
-    model = Topic
-    template_name = 'lbforum/exam-aid-topic-list.html'
-        
-    def get_queryset(self):
-        return Topic.objects.filter(forum=self.get_forum())
-    
+class ExamAidForumView(ForumView):
+    template_name = 'lbforum/exam-aid-forum.html'
 
-class ExamAidTopicDetailView(LoginRequiredMixin,FileForumGroupRequiredMixin,TopicView):
+exam_aid_forum_view = ExamAidForumView.as_view()
+
+class ExamAidTopicView(LoginRequiredMixin,FileForumGroupRequiredMixin,TopicView):
     template_name = 'lbform/exam-aid-topic-detail.html'
+
+exam_aid_topic_detail_view = ExamAidTopicView.as_view()
+
     
