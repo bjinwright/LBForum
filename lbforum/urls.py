@@ -7,7 +7,7 @@ from lbforum import views, accountviews
 forum_patterns = patterns(
     '',
     url(r'^(?P<forum_slug>[\w-]+)/$', views.forum, name='lbforum_forum'),
-    url(r'^(?P<forum_slug>[\w-]+)/$', views.exam_aid_forum_view, name='lbforum_forum'),
+    url(r'^(?P<forum_slug>[\w-]+)/exam-aid/$', views.exam_aid_forum_view, name='lbforum_forum_exam_aid'),
     url(r'^(?P<forum_slug>[\w-]+)/files/$', views.forum_files, name='lbforum_forum_files'),
     url(r'^(?P<forum_slug>[\w-]+)/files/upload/$', views.forum_files_upload, name='lbforum_files_upload'),
 )

@@ -13,7 +13,7 @@ def exam_aid_forum(exam_slug):
     if not forum:
         return {}
     
-    topics = forum.topics_set.all().order_by(
+    topics = forum.topic_set.all().order_by(
                         '-last_reply_on').select_related()
     
     return {
