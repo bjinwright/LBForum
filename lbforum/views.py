@@ -507,12 +507,13 @@ forum_files_upload = ForumFileCreateView.as_view()
 
 class ExamAidForumView(ForumView):
     template_name = 'lbforum/exam-aid-forum.html'
-
+    
 exam_aid_forum_view = ExamAidForumView.as_view()
 
-class ExamAidTopicView(LoginRequiredMixin,FileForumGroupRequiredMixin,TopicView):
-    template_name = 'lbform/exam-aid-topic-detail.html'
+class ExamAidTopicView(TopicView):
+    template_name = 'lbforum/exam-aid-topic.html'
 
-topic_exam_aid = ExamAidTopicView.as_view()
+exam_aid_topic_view = ExamAidTopicView.as_view()
+
 
     
