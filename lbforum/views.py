@@ -339,8 +339,7 @@ def new_post(request, forum_id=None, topic_id=None, form_class=NewPostForm,
 
 @login_required
 def new_post_exam_aid(request, forum_id=None,
-                      topic_id=None, form_class=NewPostForm,
-        template_name='lbforum/post.html'):
+                      topic_id=None, form_class=NewPostForm):
     return new_post(request, forum_id, topic_id,
                     form_class, 'lbforum/new-post-exam-aid.html')
 
@@ -514,6 +513,6 @@ exam_aid_forum_view = ExamAidForumView.as_view()
 class ExamAidTopicView(LoginRequiredMixin,FileForumGroupRequiredMixin,TopicView):
     template_name = 'lbform/exam-aid-topic-detail.html'
 
-exam_aid_topic_detail_view = ExamAidTopicView.as_view()
+topic_exam_aid = ExamAidTopicView.as_view()
 
     
