@@ -21,6 +21,8 @@ topic_patterns = patterns(
         views.update_topic_attr_as_not,
         name='lbforum_update_topic_attr_as_not'),
     url('^new/(?P<forum_id>\d+)/$', views.new_post, name='lbforum_new_topic'),
+    url('^new/(?P<forum_id>\d+)/exam-aid/$', views.new_post_exam_aid, name='lbforum_new_topic_exam_aid'),
+    
 )
 
 post_patterns = patterns(

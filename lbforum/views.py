@@ -338,6 +338,13 @@ def new_post(request, forum_id=None, topic_id=None, form_class=NewPostForm,
 
 
 @login_required
+def new_post_exam_aid(request, forum_id=None,
+                      topic_id=None, form_class=NewPostForm,
+        template_name='lbforum/post.html'):
+    return new_post(request, forum_id, topic_id,
+                    form_class, 'lbforum/new-post-exam-aid.html')
+
+@login_required
 def edit_post(request, post_id, form_class=EditPostForm,
               template_name="lbforum/post.html"):
     preview = None
