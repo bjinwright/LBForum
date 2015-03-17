@@ -15,7 +15,7 @@ forum_patterns = patterns(
 topic_patterns = patterns(
     '',
     url('^(?P<topic_id>\d+)/$', views.topic, name='lbforum_topic'),
-    url('^(?P<forum_slug>[\w-]+)/(?P<topic_id>\d+)/exam-aid/$', views.topic_exam_aid, name='lbforum_topic_exam_aid'),
+    url('^(?P<forum_slug>[\w-]+)/(?P<topic_id>\d+)/exam-aid/$', views.new_post_exam_aid, name='lbforum_topic_exam_aid'),
     url('^(?P<topic_id>\d+)/delete/$', views.delete_topic,
         name='lbforum_delete_topic'),
     url('^(?P<topic_id>\d+)/update_topic_attr_as_not/(?P<attr>[\w-]+)/$',
