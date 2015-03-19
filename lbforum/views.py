@@ -341,16 +341,13 @@ def new_post(request, forum_id=None, topic_id=None, form_class=NewPostForm,
 @login_required
 def new_post_exam_aid(request, forum_id=None,
                       topic_id=None, form_class=NewPostForm):
-    return new_post(request, forum_id, topic_id,
-                    form_class, 'lbforum/new-post-exam-aid.html',
-                    forum_reverse_string='lbforum_forum_exam_aid')
-
-@login_required
-def new_post_reply_exam_aid(request,topic_id):
-    return new_post(request,topic_id,
-                    template_name='lbforum/new-post-exam-aid.html',
+    return new_post(request, forum_id=forum_id, topic_id=topic_id,
+                    form_class=form_class, template_name='lbforum/new-post-exam-aid.html',
+                    forum_reverse_string='lbforum_forum_exam_aid',
                     topic_reverse_string='lbforum_topic_exam_aid'
                     )
+
+
 
 
 @login_required
