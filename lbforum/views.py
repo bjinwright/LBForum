@@ -348,7 +348,7 @@ def new_post_exam_aid(request, forum_id=None,
 @login_required
 def new_post_reply_exam_aid(request,topic_id):
     return new_post(request,topic_id,
-                    template_name='lbforum/new-post-reply-exam-aid.html',
+                    template_name='lbforum/new-post-exam-aid.html',
                     topic_reverse_string='lbforum_topic_exam_aid'
                     )
 
