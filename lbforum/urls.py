@@ -44,7 +44,7 @@ urlpatterns = patterns(
     (r'^topic/', include(topic_patterns)),
     url('^reply/new/(?P<topic_id>\d+)/$', views.new_post,
         name='lbforum_new_replay'),
-    url('^reply/new/(?P<topic_id>\d+)/$', views.new_post_reply_exam_aid,
+    url('^reply/new/(?P<topic_id>\d+)/exam-aid/$', views.new_post_reply_exam_aid,
         name='lbforum_new_replay_exam_aid'),
     (r'^post/', include(post_patterns)),
     url('^user/(?P<user_id>\d+)/topics/$', views.user_topics,
