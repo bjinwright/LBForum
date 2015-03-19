@@ -290,7 +290,8 @@ class NewPostView(ForumGroupRequiredMixin,LoginRequiredMixin,CreateView):
         
 @login_required
 def new_post(request, forum_id=None, topic_id=None, form_class=NewPostForm,
-        template_name='lbforum/post.html'):
+        template_name='lbforum/post.html',forum_reverse_string="lbforum_forum",
+        topic_reverse_string='lbforum_topic'):
     qpost = topic = forum = first_post = preview = None
     post_type = _('topic')
     topic_post = True
@@ -310,9 +311,9 @@ def new_post(request, forum_id=None, topic_id=None, form_class=NewPostForm,
         if form.is_valid() and request.POST.get('submit', ''):
             post = form.save()
             if topic:
-                return HttpResponseRedirect(post.get_absolute_url_ext())
+                return HttpResponseRedirect(reverse(topic_reverse_string,args=[topic_id]))
             else:
-                return HttpResponseRedirect(reverse("lbforum_forum",
+                return HttpResponseRedirect(reverse(forum_reverse_string,
                                                     args=[forum.slug]))
     else:
         initial = {}
@@ -341,7 +342,16 @@ def new_post(request, forum_id=None, topic_id=None, form_class=NewPostForm,
 def new_post_exam_aid(request, forum_id=None,
                       topic_id=None, form_class=NewPostForm):
     return new_post(request, forum_id, topic_id,
-                    form_class, 'lbforum/new-post-exam-aid.html')
+                    form_class, 'lbforum/new-post-exam-aid.html',
+                    forum_reverse_string='lbforum_forum_exam_aid')
+
+@login_required
+def new_post_reply_exam_aid(request,topic_id):
+    return new_post(request,topic_id,
+                    template_name='lbforum/new-post-reply-exam-aid.html',
+                    topic_reverse_string='lbforum_topic_exam_aid'
+                    )
+
 
 @login_required
 def edit_post(request, post_id, form_class=EditPostForm,
