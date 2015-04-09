@@ -27,12 +27,12 @@ class ForumFileForm(forms.ModelForm):
 class PostForm(forms.ModelForm):
     subject = forms.CharField(label=_('Subject'), widget=forms.TextInput(attrs={'size': '80'}))
     message = forms.CharField(label=_('Message'), widget=forms.Textarea(attrs={'cols': '95', 'rows': '14'}))
-    
+    attachments = forms.Field(label=_('Attachments'), required=False, widget=forms.SelectMultiple())
 
     class Meta:
         model = Post
         fields = ('message',)
-        excludes = ('attachments','need_replay',)
+        excludes = ('need_replay',)
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         self.topic = kwargs.pop('topic', None)
@@ -42,7 +42,7 @@ class PostForm(forms.ModelForm):
         if self.instance.id:
             self.forum = self.instance.topic.forum
 
-        self.fields.keyOrder = ['subject', 'message']
+        self.fields.keyOrder = ['subject', 'message', 'attachments']
 
 
 class EditPostForm(PostForm):
@@ -58,6 +58,8 @@ class EditPostForm(PostForm):
         post.message = self.cleaned_data['message']
         post.updated_on = datetime.now()
         post.edited_by = self.user.username
+        attachments = self.cleaned_data['attachments']
+        post.update_attachments(attachments)
         post.save()
         if post.topic_post:
             post.topic.subject = self.cleaned_data['subject']
@@ -88,6 +90,8 @@ class NewPostForm(PostForm):
         if topic_post:
             topic.post = post
             topic.save()
+        attachments = self.cleaned_data['attachments']
+        post.update_attachments(attachments)
         return post
 
 
